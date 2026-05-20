@@ -103,7 +103,6 @@
     .quiz-conf-d    { font-size: 14px; color: var(--brown-muted); line-height: 1.6; margin-bottom: 24px; }
 
     /* ── Dashboard ── */
-    #dashScreen { display: none; } /* toggled via inline style */
     main { padding: 28px 28px 60px; max-width: 980px; margin: 0 auto; }
 
     .stats-bar {
@@ -274,7 +273,7 @@
 </div>
 
 <!-- ══ Screen 2: Internal Dashboard ══ -->
-<div id="dashScreen">
+<div id="dashScreen" style="display:none">
   <main>
 
     <div class="stats-bar">
@@ -561,7 +560,7 @@ function showDash() {
   $('quizScreen').style.display = 'none';
   $('dashScreen').style.display = 'block';
   $('navToggle').textContent = '← Customer view';
-  renderDash();
+  requestAnimationFrame(() => renderDash());
 }
 function showQuiz() {
   $('quizScreen').style.display = 'flex';
