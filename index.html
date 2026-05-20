@@ -103,7 +103,7 @@
     .quiz-conf-d    { font-size: 14px; color: var(--brown-muted); line-height: 1.6; margin-bottom: 24px; }
 
     /* ── Dashboard ── */
-    #dashScreen { display: none; }
+    #dashScreen { display: none; } /* toggled via inline style */
     main { padding: 28px 28px 60px; max-width: 980px; margin: 0 auto; }
 
     .stats-bar {
@@ -520,7 +520,6 @@ const SENTIMENTS = [
 // ── Utility ───────────────────────────────────────────────────────────────────
 const fmt  = (v) => (v < 0 ? '-£' : '£') + Math.abs(Math.round(v)).toLocaleString();
 const $    = (id) => document.getElementById(id);
-const show = (id) => $(id).style.display = '';
 const hide = (id) => $(id).style.display = 'none';
 
 // Previous weeks help amounts (for running total)
@@ -556,10 +555,19 @@ function submitQuiz() {
 }
 
 function toggleScreen() {
-  $('dashScreen').style.display === 'none' || !$('dashScreen').style.display ? showDash() : showQuiz();
+  $('dashScreen').style.display === 'none' || $('dashScreen').style.display === '' ? showDash() : showQuiz();
 }
-function showDash()  { hide('quizScreen'); show('dashScreen'); $('navToggle').textContent='← Customer view'; renderDash(); }
-function showQuiz()  { show('quizScreen'); hide('dashScreen'); $('navToggle').textContent='View internal dashboard →'; }
+function showDash() {
+  $('quizScreen').style.display = 'none';
+  $('dashScreen').style.display = 'block';
+  $('navToggle').textContent = '← Customer view';
+  renderDash();
+}
+function showQuiz() {
+  $('quizScreen').style.display = 'flex';
+  $('dashScreen').style.display = 'none';
+  $('navToggle').textContent = 'View internal dashboard →';
+}
 
 // ── Dashboard render ──────────────────────────────────────────────────────────
 let dashReady = false;
