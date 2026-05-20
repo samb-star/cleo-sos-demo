@@ -50,54 +50,125 @@
     }
     .pill-btn:hover { background: rgba(255,255,255,0.2); }
 
-    /* ── Quiz Screen ── */
-    #quizScreen { min-height: calc(100vh - 56px); display: flex; align-items: center; justify-content: center; padding: 40px 20px; }
-    .quiz-card {
-      max-width: 440px; width: 100%;
-      background: var(--glass-bg); backdrop-filter: blur(24px);
-      border: 1px solid var(--glass-border); border-radius: 28px;
-      box-shadow: var(--glass-shadow-lg); padding: 40px 36px;
+    /* ── Quiz Screen / iPhone mockup ── */
+    #quizScreen {
+      min-height: calc(100vh - 56px); display: flex; align-items: flex-start;
+      justify-content: center; padding: 40px 20px 60px; background: #1C1C1E;
     }
-    .quiz-eyebrow { font-size: 11px; letter-spacing: 2px; text-transform: uppercase; color: var(--brown-muted); margin-bottom: 8px; }
-    .quiz-title   { font-size: 34px; font-weight: 300; color: var(--brown-dark); letter-spacing: -1.2px; line-height: 1.05; margin-bottom: 10px; }
-    .quiz-title strong { font-weight: 600; }
-    .quiz-sub     { font-size: 14px; color: var(--brown-muted); line-height: 1.65; margin-bottom: 24px; }
-    .quiz-meta    { display: flex; gap: 10px; margin-bottom: 26px; flex-wrap: wrap; }
-    .q-meta-pill  { background: rgba(59,14,7,0.06); color: var(--brown-muted); font-size: 11px; padding: 4px 14px; border-radius: 100px; }
+    .phone-stage { display: flex; justify-content: center; }
+    .phone-frame {
+      width: 390px; max-width: 100%;
+      background: #F2F0EB;
+      border-radius: 52px;
+      border: 10px solid #1A1A1A;
+      box-shadow: 0 0 0 1px #444, 0 40px 100px rgba(0,0,0,0.6), inset 0 0 0 1px #555;
+      overflow: hidden;
+      display: flex; flex-direction: column;
+      position: relative;
+    }
 
-    .question-list { list-style: none; display: flex; flex-direction: column; gap: 10px; margin-bottom: 26px; }
-    .question-item {
-      display: flex; align-items: flex-start; gap: 14px; padding: 16px 18px;
-      background: rgba(255,255,255,0.5); border-radius: 16px;
-      border: 2px solid transparent; cursor: pointer; transition: all 0.15s;
+    /* Status bar */
+    .phone-status {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 14px 26px 6px; background: #F2F0EB;
+      flex-shrink: 0;
     }
-    .question-item:hover   { border-color: var(--brown-faint); background: rgba(255,255,255,0.75); }
-    .question-item.checked { border-color: var(--brown-dark);  background: rgba(255,255,255,0.9); }
-    .q-checkbox {
-      width: 22px; height: 22px; min-width: 22px; border-radius: 6px;
-      border: 2px solid var(--brown-faint); display: flex; align-items: center; justify-content: center;
-      transition: all 0.15s; margin-top: 1px;
-    }
-    .question-item.checked .q-checkbox { background: var(--brown-dark); border-color: var(--brown-dark); }
-    .q-check-icon { color: white; font-size: 12px; display: none; font-style: normal; }
-    .question-item.checked .q-check-icon { display: block; }
-    .q-text { font-size: 14px; color: var(--brown-dark); line-height: 1.5; }
-    .q-hint { font-size: 12px; color: var(--brown-muted); margin-top: 2px; }
+    .phone-time { font-size: 15px; font-weight: 600; color: #1A1A1A; letter-spacing: -0.3px; }
+    .phone-status-icons { display: flex; align-items: center; gap: 6px; color: #1A1A1A; }
 
-    .quiz-cta {
-      width: 100%; padding: 15px; border-radius: 100px;
-      background: var(--brown-dark); color: var(--white);
-      border: none; font-size: 15px; cursor: pointer;
-      transition: opacity 0.2s, transform 0.1s; margin-bottom: 14px;
+    /* Scrollable content */
+    .phone-scroll {
+      flex: 1; overflow-y: auto; padding: 0 0 8px;
+      -webkit-overflow-scrolling: touch;
     }
-    .quiz-cta:hover    { opacity: 0.85; transform: translateY(-1px); }
-    .quiz-cta:disabled { opacity: 0.3;  cursor: not-allowed; transform: none; }
-    .quiz-small { font-size: 12px; color: var(--brown-muted); text-align: center; line-height: 1.6; }
+    .phone-scroll::-webkit-scrollbar { display: none; }
 
-    .quiz-confirmed { text-align: center; padding: 8px 0; }
-    .quiz-conf-icon { font-size: 48px; margin-bottom: 16px; }
-    .quiz-conf-t    { font-size: 20px; font-weight: 300; color: var(--brown-dark); margin-bottom: 8px; letter-spacing: -0.3px; }
-    .quiz-conf-d    { font-size: 14px; color: var(--brown-muted); line-height: 1.6; margin-bottom: 24px; }
+    /* App header */
+    .app-header { padding: 12px 20px 8px; }
+    .app-title-row { display: flex; align-items: center; justify-content: space-between; }
+    .app-page-title { font-size: 30px; font-weight: 700; color: #1A1A1A; letter-spacing: -0.8px; }
+    .app-header-icons { display: flex; gap: 8px; }
+    .app-icon-btn {
+      width: 36px; height: 36px; border-radius: 50%;
+      background: rgba(0,0,0,0.06); display: flex; align-items: center; justify-content: center;
+      color: #1A1A1A;
+    }
+
+    /* Intro card */
+    .app-card { background: #fff; border-radius: 18px; margin: 0 16px 12px; padding: 18px 18px; }
+    .intro-card { }
+    .draw-meta-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+    .draw-badge { background: #E8F0DD; color: #3D5A1E; font-size: 12px; font-weight: 600; padding: 4px 12px; border-radius: 100px; }
+    .draw-entrants { font-size: 12px; color: #888; }
+    .intro-text { font-size: 14px; color: #444; line-height: 1.6; }
+
+    /* Questions */
+    .questions-card { padding: 4px 0; }
+    .q-list { list-style: none; }
+    .q-item {
+      display: flex; align-items: flex-start; gap: 14px;
+      padding: 16px 18px; cursor: pointer; transition: background 0.12s;
+    }
+    .q-item:active { background: #F8F8F5; }
+    .q-check {
+      width: 24px; height: 24px; min-width: 24px; border-radius: 8px;
+      border: 2px solid #D0CCC4; background: #fff;
+      display: flex; align-items: center; justify-content: center;
+      transition: all 0.15s; margin-top: 1px; flex-shrink: 0;
+    }
+    .q-item.checked .q-check { background: #3D5A1E; border-color: #3D5A1E; }
+    .q-check-svg { display: none; }
+    .q-item.checked .q-check-svg { display: block; }
+    .q-body { flex: 1; }
+    .q-text { font-size: 15px; color: #1A1A1A; line-height: 1.45; font-weight: 500; }
+    .q-hint { font-size: 13px; color: #888; margin-top: 3px; }
+    .q-divider { height: 1px; background: #F0EDE8; margin: 0 18px; }
+
+    /* CTA */
+    .app-cta {
+      display: block; width: calc(100% - 32px); margin: 8px 16px 0;
+      padding: 16px; border-radius: 100px;
+      background: #1A1A1A; color: #fff;
+      border: none; font-size: 16px; font-weight: 600; cursor: pointer;
+      transition: opacity 0.2s; letter-spacing: -0.2px;
+    }
+    .app-cta:hover    { opacity: 0.85; }
+    .app-cta:disabled { opacity: 0.25; cursor: not-allowed; }
+    .app-cta-note { font-size: 12px; color: #888; text-align: center; line-height: 1.6; margin: 12px 20px 6px; }
+    .app-demo-link { text-align: center; margin-bottom: 12px; }
+    .app-demo-link a { font-size: 11px; color: #bbb; text-decoration: none; }
+
+    /* Confirmed state */
+    .quiz-confirmed { text-align: center; padding: 40px 20px; }
+    .quiz-conf-icon { font-size: 56px; margin-bottom: 16px; }
+    .quiz-conf-t    { font-size: 22px; font-weight: 700; color: #1A1A1A; margin-bottom: 8px; letter-spacing: -0.5px; }
+    .quiz-conf-d    { font-size: 14px; color: #666; line-height: 1.6; margin-bottom: 28px; }
+
+    /* Bottom nav */
+    .phone-nav {
+      display: flex; justify-content: space-around; align-items: center;
+      padding: 10px 8px 4px; background: #fff;
+      border-top: 1px solid #E8E5E0; flex-shrink: 0;
+    }
+    .nav-item { display: flex; flex-direction: column; align-items: center; gap: 4px; cursor: pointer; flex: 1; }
+    .nav-item svg { color: #BCBAB6; }
+    .nav-item span { font-size: 10px; color: #BCBAB6; }
+    .nav-active svg { color: #1A1A1A; }
+    .nav-active span { color: #1A1A1A; font-weight: 600; }
+    .nav-active-icon {
+      width: 36px; height: 36px; border-radius: 50%;
+      background: #1A1A1A; display: flex; align-items: center; justify-content: center;
+    }
+    .nav-cleo-icon {
+      width: 34px; height: 34px; border-radius: 50%;
+      background: #F2F0EB; border: 1.5px solid #D0CCC4;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 14px; font-weight: 700; color: #1A1A1A;
+    }
+    .phone-home-bar {
+      width: 134px; height: 5px; background: #1A1A1A; opacity: 0.2;
+      border-radius: 100px; margin: 6px auto 10px;
+    }
 
     /* ── Dashboard ── */
     main { padding: 28px 28px 60px; max-width: 980px; margin: 0 auto; }
@@ -220,52 +291,122 @@
 <header>
   <div class="logo">
     <span class="logo-paren">(</span><span class="logo-word">cleo</span><span class="logo-paren">)</span>
-    <span class="logo-tag">SOS</span>
+    <span class="logo-tag">Cover Boost</span>
   </div>
   <div class="header-right">
     <button class="nav-link" id="navToggle" onclick="toggleScreen()">View internal dashboard →</button>
   </div>
 </header>
 
-<!-- ══ Screen 1: Customer Quiz ══ -->
+<!-- ══ Screen 1: Customer Quiz (iPhone mockup) ══ -->
 <div id="quizScreen">
-  <div class="quiz-card" id="quizCard">
-    <div class="quiz-eyebrow">Weekly help draw</div>
-    <div class="quiz-title">Cleo <strong>SOS</strong></div>
-    <div class="quiz-sub">Three questions. We pick the person who genuinely needs help most — and cover their balance.</div>
-    <div class="quiz-meta">
-      <div class="q-meta-pill" id="quizWeekLabel">Week 24 of 2026</div>
-      <div class="q-meta-pill" id="quizEntryCount">—</div>
-    </div>
-    <ul class="question-list" id="questionList">
-      <li class="question-item" onclick="toggleQ(this)">
-        <div class="q-checkbox"><i class="q-check-icon">✓</i></div>
-        <div>
-          <div class="q-text">Has your bank balance been negative in the last 30 days?</div>
-          <div class="q-hint">Even briefly counts</div>
+  <div class="phone-stage">
+    <div class="phone-frame">
+
+      <!-- Status bar -->
+      <div class="phone-status">
+        <span class="phone-time">9:41</span>
+        <div class="phone-status-icons">
+          <svg width="17" height="12" viewBox="0 0 17 12" fill="none"><rect x="0" y="3" width="3" height="9" rx="1" fill="currentColor"/><rect x="4.5" y="2" width="3" height="10" rx="1" fill="currentColor"/><rect x="9" y="0.5" width="3" height="11.5" rx="1" fill="currentColor"/><rect x="13.5" y="0" width="3.5" height="12" rx="1" fill="currentColor" opacity="0.3"/></svg>
+          <svg width="16" height="12" viewBox="0 0 16 12" fill="none"><path d="M8 2.5C10.2 2.5 12.2 3.4 13.6 4.9L15 3.4C13.2 1.5 10.7 0.3 8 0.3C5.3 0.3 2.8 1.5 1 3.4L2.4 4.9C3.8 3.4 5.8 2.5 8 2.5Z" fill="currentColor"/><path d="M8 5.5C9.4 5.5 10.7 6.1 11.6 7L13 5.5C11.7 4.2 10 3.5 8 3.5C6 3.5 4.3 4.2 3 5.5L4.4 7C5.3 6.1 6.6 5.5 8 5.5Z" fill="currentColor"/><circle cx="8" cy="10" r="1.5" fill="currentColor"/></svg>
+          <svg width="25" height="12" viewBox="0 0 25 12" fill="none"><rect x="0.5" y="0.5" width="21" height="11" rx="3.5" stroke="currentColor" stroke-opacity="0.35"/><rect x="2" y="2" width="17" height="8" rx="2" fill="currentColor"/><path d="M23 4.5V7.5C23.8 7.2 24.5 6.7 24.5 6C24.5 5.3 23.8 4.8 23 4.5Z" fill="currentColor" fill-opacity="0.4"/></svg>
         </div>
-      </li>
-      <li class="question-item" onclick="toggleQ(this)">
-        <div class="q-checkbox"><i class="q-check-icon">✓</i></div>
-        <div>
-          <div class="q-text">Are you worried about an upcoming bill you're not sure you can cover?</div>
-          <div class="q-hint">Rent, utilities, subscriptions…</div>
+      </div>
+
+      <!-- Scrollable content inside phone -->
+      <div class="phone-scroll" id="quizCard">
+
+        <!-- App header -->
+        <div class="app-header">
+          <div class="app-title-row">
+            <h1 class="app-page-title">Cleo Cover Boost</h1>
+            <div class="app-header-icons">
+              <div class="app-icon-btn">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+              </div>
+              <div class="app-icon-btn">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+              </div>
+            </div>
+          </div>
         </div>
-      </li>
-      <li class="question-item" onclick="toggleQ(this)">
-        <div class="q-checkbox"><i class="q-check-icon">✓</i></div>
-        <div>
-          <div class="q-text">Did you spend more than you earned last month?</div>
-          <div class="q-hint">More going out than coming in</div>
+
+        <!-- Intro card -->
+        <div class="app-card intro-card">
+          <div class="draw-meta-row">
+            <span class="draw-badge" id="quizWeekLabel">Week 24</span>
+            <span class="draw-entrants" id="quizEntryCount">— entered</span>
+          </div>
+          <p class="intro-text">Three simple questions; Cleo picks a customer who enters the draw and gives their balance a boost.</p>
         </div>
-      </li>
-    </ul>
-    <button class="quiz-cta" id="quizBtn" onclick="submitQuiz()" disabled>Enter this week's draw</button>
-    <div class="quiz-small">
-      No luck needed. We use your Cleo open banking data to find who needs it most.<br>The more you need help, the better your chances.<br><br>
-      <span style="opacity:0.55;font-size:11px">Demo — <a href="#" style="color:var(--brown-muted)" onclick="showDash();return false;">jump to internal dashboard</a></span>
-    </div>
-  </div>
+
+        <!-- Questions card -->
+        <div class="app-card questions-card">
+          <ul class="q-list" id="questionList">
+            <li class="q-item" onclick="toggleQ(this)">
+              <div class="q-check"><svg class="q-check-svg" width="14" height="11" viewBox="0 0 14 11" fill="none"><path d="M1 5L5 9L13 1" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+              <div class="q-body">
+                <div class="q-text">Has your bank balance been negative in the last 6 months?</div>
+                <div class="q-hint">Even for a couple of hours counts</div>
+              </div>
+            </li>
+            <li class="q-divider"></li>
+            <li class="q-item" onclick="toggleQ(this)">
+              <div class="q-check"><svg class="q-check-svg" width="14" height="11" viewBox="0 0 14 11" fill="none"><path d="M1 5L5 9L13 1" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+              <div class="q-body">
+                <div class="q-text">Are you worried about an upcoming bill you're unsure you can cover?</div>
+                <div class="q-hint">Rent, bills, a trip to the hairdressers…</div>
+              </div>
+            </li>
+            <li class="q-divider"></li>
+            <li class="q-item" onclick="toggleQ(this)">
+              <div class="q-check"><svg class="q-check-svg" width="14" height="11" viewBox="0 0 14 11" fill="none"><path d="M1 5L5 9L13 1" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+              <div class="q-body">
+                <div class="q-text">Have there been times when you've spent more than you've earned in the last 6 months?</div>
+                <div class="q-hint">More going out than coming in</div>
+              </div>
+            </li>
+          </ul>
+        </div>
+
+        <!-- CTA -->
+        <button class="app-cta" id="quizBtn" onclick="submitQuiz()" disabled>Enter this week's draw</button>
+        <p class="app-cta-note">Everyone who enters has an equal chance — entering the draw is what puts you in. If you're a Cleo member, you're in the running.</p>
+        <p class="app-demo-link"><a href="#" onclick="showDash();return false;">View internal dashboard →</a></p>
+
+      </div><!-- end phone-scroll -->
+
+      <!-- Bottom nav -->
+      <div class="phone-nav">
+        <div class="nav-item">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M12 8v8M8 12h8" opacity="0.5"/><line x1="7" y1="17" x2="17" y2="7"/></svg>
+          <span>Spend</span>
+        </div>
+        <div class="nav-item nav-active">
+          <div class="nav-active-icon">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="white" stroke="none"><path d="M12 2L4 20h16L12 2z"/></svg>
+          </div>
+          <span>Plan</span>
+        </div>
+        <div class="nav-item">
+          <div class="nav-cleo-icon">C</div>
+          <span>Ask Cleo</span>
+        </div>
+        <div class="nav-item">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M8 8l8 8M16 8l-8 8" opacity="0.4"/><line x1="17" y1="7" x2="7" y2="17"/></svg>
+          <span>Save</span>
+        </div>
+        <div class="nav-item">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M12 6v12M9 9c0-1.7 1.3-3 3-3s3 1.3 3 3c0 3-6 3-6 6s1.3 3 3 3 3-1.3 3-3"/></svg>
+          <span>Request</span>
+        </div>
+      </div>
+
+      <!-- Home indicator -->
+      <div class="phone-home-bar"></div>
+
+    </div><!-- end phone-frame -->
+  </div><!-- end phone-stage -->
 </div>
 
 <!-- ══ Screen 2: Internal Dashboard ══ -->
@@ -534,18 +675,23 @@ window.addEventListener('DOMContentLoaded', () => {
 // ── Quiz screen ───────────────────────────────────────────────────────────────
 function toggleQ(el) {
   el.classList.toggle('checked');
-  $('quizBtn').disabled = document.querySelectorAll('.question-item.checked').length === 0;
+  $('quizBtn').disabled = document.querySelectorAll('.q-item.checked').length === 0;
 }
 
 let quizDone = false;
 function submitQuiz() {
   if (quizDone) return; quizDone = true;
   $('quizCard').innerHTML = `
+    <div class="app-header">
+      <div class="app-title-row">
+        <h1 class="app-page-title">Cleo Cover Boost</h1>
+      </div>
+    </div>
     <div class="quiz-confirmed">
       <div class="quiz-conf-icon">🙌</div>
       <div class="quiz-conf-t">You're in the draw</div>
-      <div class="quiz-conf-d">We'll pick the person who needs it most from this week's ${ENTRANTS.length+118} entrants.<br>You'll hear back by Thursday.</div>
-      <button class="quiz-cta" style="max-width:260px;margin:0 auto" onclick="showDash()">See internal dashboard →</button>
+      <div class="quiz-conf-d">We'll pick whoever needs it most from this week's ${ENTRANTS.length+118} entrants. You'll hear back by Thursday.</div>
+      <button class="app-cta" style="margin-top:0" onclick="showDash()">See internal dashboard</button>
     </div>`;
 }
 
