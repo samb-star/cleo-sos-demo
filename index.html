@@ -4,10 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Cleo SOS</title>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns@3.0.0/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/gridjs/dist/gridjs.umd.js"></script>
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/gridjs/dist/theme/mermaid.min.css">
+  <!-- No external dependencies — fully self-contained -->
   <style>
     :root {
       --cream:          #F7F4EE;
@@ -187,14 +184,13 @@
 
     .sec-head { font-size: 13px; font-weight: 400; color: var(--brown-dark); margin-bottom: 14px; display: flex; align-items: center; gap: 10px; }
     .sec-badge { background: rgba(59,14,7,0.08); color: var(--brown-mid); font-size: 11px; padding: 2px 10px; border-radius: 100px; }
-    #entrantsTable { border-radius: 18px; overflow: hidden; }
-    .gridjs-wrapper { border-radius: 18px !important; border: none !important; box-shadow: var(--glass-shadow) !important; background: var(--glass-bg) !important; backdrop-filter: blur(20px) !important; border: 1px solid var(--glass-border) !important; }
-    .gridjs-container { background: transparent !important; }
-    .gridjs-head { background: rgba(59,14,7,0.04) !important; }
-    .gridjs-th { background: transparent !important; color: var(--brown-muted) !important; font-size: 10px !important; font-weight: 400 !important; letter-spacing: 1px !important; text-transform: uppercase !important; border-color: rgba(160,120,96,0.15) !important; padding: 13px 18px !important; font-family: inherit !important; }
-    .gridjs-td { font-size: 13px !important; padding: 12px 18px !important; border-color: rgba(160,120,96,0.1) !important; color: var(--brown-dark) !important; background: transparent !important; font-family: inherit !important; }
-    .gridjs-tr:first-child .gridjs-td { background: rgba(160,120,96,0.06) !important; }
-    .gridjs-tr:hover .gridjs-td { background: rgba(255,255,255,0.5) !important; }
+    #entrantsTable { border-radius: 18px; overflow: hidden; background: var(--glass-bg); backdrop-filter: blur(20px); border: 1px solid var(--glass-border); box-shadow: var(--glass-shadow); }
+    .sos-table { width: 100%; border-collapse: collapse; }
+    .sos-table th { font-size: 10px; font-weight: 400; letter-spacing: 1px; text-transform: uppercase; color: var(--brown-muted); padding: 13px 18px; text-align: left; border-bottom: 1px solid rgba(160,120,96,0.15); background: rgba(59,14,7,0.04); }
+    .sos-table td { font-size: 13px; padding: 12px 18px; border-bottom: 1px solid rgba(160,120,96,0.08); color: var(--brown-dark); }
+    .sos-table tr:first-child td { background: rgba(160,120,96,0.06); }
+    .sos-table tr:hover td { background: rgba(255,255,255,0.5); }
+    .sos-table tr:last-child td { border-bottom: none; }
     .chip { display: inline-block; padding: 3px 12px; border-radius: 100px; font-size: 11px; }
     .chip-hi  { background: rgba(192,57,43,0.10); color: var(--danger); }
     .chip-med { background: rgba(160,82,45,0.10);  color: var(--amber); }
@@ -671,111 +667,119 @@ function renderHero() {
 }
 
 function renderChart() {
-  const bals  = Array.from(HERO.bals);
-  const today = new Date();
-  const labels = bals.map((_,i) => { const d=new Date(today); d.setDate(d.getDate()-(729-i)); return d; });
+  const canvas = $('heroChart');
+  const bals   = Array.from(HERO.bals);
+  const today  = new Date();
+  const dpr    = window.devicePixelRatio || 1;
+  const W      = canvas.parentElement.offsetWidth;
+  const H      = 210;
+  canvas.style.width  = W + 'px';
+  canvas.style.height = H + 'px';
+  canvas.width  = W * dpr;
+  canvas.height = H * dpr;
+  const ctx = canvas.getContext('2d');
+  ctx.scale(dpr, dpr);
 
-  // Place sentiment markers at their dates
-  const scatterData = SENTIMENTS.map(s => {
-    const idx = Math.max(0, 729 - s.daysAgo);
-    return { x: labels[idx], y: bals[idx], text: s.text };
+  const pad = { top: 16, right: 16, bottom: 28, left: 52 };
+  const cW  = W - pad.left - pad.right;
+  const cH  = H - pad.top  - pad.bottom;
+
+  const minV = Math.min(...bals);
+  const maxV = Math.max(...bals);
+  const range = maxV - minV || 1;
+
+  const xp = (i) => pad.left + (i / (bals.length - 1)) * cW;
+  const yp = (v) => pad.top  + (1 - (v - minV) / range) * cH;
+  const zeroY = yp(0);
+
+  // Grid lines
+  ctx.strokeStyle = 'rgba(160,120,96,0.1)';
+  ctx.lineWidth = 1;
+  [minV, minV/2, 0, maxV/2, maxV].forEach(v => {
+    const y = yp(v);
+    ctx.beginPath(); ctx.moveTo(pad.left, y); ctx.lineTo(W - pad.right, y); ctx.stroke();
   });
 
-  if (heroChart) heroChart.destroy();
-  heroChart = new Chart($('heroChart').getContext('2d'), {
-    type: 'line',
-    data: {
-      labels,
-      datasets: [
-        {
-          data: bals,
-          borderColor: '#6B3A28',
-          borderWidth: 1.5,
-          fill: { target: { value: 0 }, above: 'rgba(107,58,40,0.07)', below: 'rgba(192,57,43,0.14)' },
-          pointRadius: 0,
-          tension: 0.25,
-          order: 2,
-        },
-        {
-          type: 'scatter',
-          data: scatterData,
-          pointRadius: 5,
-          pointHoverRadius: 7,
-          backgroundColor: '#C0392B',
-          borderColor: '#fff',
-          borderWidth: 2,
-          order: 1,
-        }
-      ]
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      interaction: { mode: 'nearest', intersect: false },
-      plugins: {
-        legend: { display: false },
-        tooltip: {
-          callbacks: {
-            title: (items) => {
-              const d = items[0].parsed?.x ? new Date(items[0].parsed.x) : null;
-              return d ? d.toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'}) : '';
-            },
-            label: (item) => {
-              if (item.datasetIndex === 1) {
-                return `💬 "${item.raw.text?.slice(0,55)}…"`;
-              }
-              return `Balance: ${fmt(item.raw)}`;
-            }
-          }
-        }
-      },
-      scales: {
-        x: {
-          type: 'time',
-          time: { unit: 'month', displayFormats: { month: 'MMM yy' } },
-          grid: { color: 'rgba(160,120,96,0.07)' },
-          ticks: { color: '#A07860', font: { size: 10 } },
-        },
-        y: {
-          grid: { color: 'rgba(160,120,96,0.07)' },
-          ticks: { color: '#A07860', font: { size: 10 }, callback: (v) => fmt(v) },
-        }
-      }
-    }
+  // Zero line
+  ctx.strokeStyle = 'rgba(192,57,43,0.35)';
+  ctx.setLineDash([4, 4]);
+  ctx.beginPath(); ctx.moveTo(pad.left, zeroY); ctx.lineTo(W - pad.right, zeroY); ctx.stroke();
+  ctx.setLineDash([]);
+
+  // Positive fill (above zero)
+  ctx.fillStyle = 'rgba(107,58,40,0.06)';
+  ctx.beginPath();
+  bals.forEach((v, i) => {
+    const x = xp(i), y = Math.min(yp(v), zeroY);
+    i === 0 ? ctx.moveTo(x, zeroY) : ctx.lineTo(x, y);
+  });
+  ctx.lineTo(xp(bals.length - 1), zeroY);
+  ctx.closePath(); ctx.fill();
+
+  // Negative fill (below zero)
+  ctx.fillStyle = 'rgba(192,57,43,0.13)';
+  ctx.beginPath();
+  bals.forEach((v, i) => {
+    const x = xp(i), y = Math.max(yp(v), zeroY);
+    i === 0 ? ctx.moveTo(x, zeroY) : ctx.lineTo(x, y);
+  });
+  ctx.lineTo(xp(bals.length - 1), zeroY);
+  ctx.closePath(); ctx.fill();
+
+  // Balance line
+  ctx.strokeStyle = '#6B3A28';
+  ctx.lineWidth = 1.5;
+  ctx.beginPath();
+  bals.forEach((v, i) => { i === 0 ? ctx.moveTo(xp(i), yp(v)) : ctx.lineTo(xp(i), yp(v)); });
+  ctx.stroke();
+
+  // Sentiment dots
+  SENTIMENTS.forEach(s => {
+    const idx = Math.max(0, Math.min(729, 729 - s.daysAgo));
+    const x = xp(idx), y = yp(bals[idx]);
+    ctx.fillStyle = '#C0392B';
+    ctx.beginPath(); ctx.arc(x, y, 4.5, 0, Math.PI * 2); ctx.fill();
+    ctx.strokeStyle = '#fff'; ctx.lineWidth = 1.5;
+    ctx.beginPath(); ctx.arc(x, y, 4.5, 0, Math.PI * 2); ctx.stroke();
+  });
+
+  // X axis date labels (every ~122 days ≈ 6 labels)
+  ctx.fillStyle = '#A07860';
+  ctx.font = `${10 * dpr / dpr}px -apple-system, BlinkMacSystemFont, sans-serif`;
+  ctx.textAlign = 'center';
+  for (let i = 0; i < bals.length; i += 122) {
+    const d = new Date(today); d.setDate(d.getDate() - (729 - i));
+    ctx.fillText(d.toLocaleDateString('en-GB', { month: 'short', year: '2-digit' }), xp(i), H - 8);
+  }
+
+  // Y axis labels
+  ctx.textAlign = 'right';
+  [minV, 0, maxV].forEach(v => {
+    ctx.fillText(fmt(v), pad.left - 6, yp(v) + 4);
   });
 }
 
 function renderTable() {
   $('tblCount').textContent = ENTRANTS.length;
-  const rows = ENTRANTS.map((u,i) => {
-    const s=u.sc.total, cls=s>=70?'chip-hi':s>=45?'chip-med':'chip-lo';
-    return [
-      i===0?'#1 ★':`#${i+1}`,
-      u.name,
-      fmt(u.sc.cur),
-      fmt(u.sc.a30),
-      fmt(u.sc.a2y),
-      `${u.sc.daysNeg30}d`,
-      `<span class="chip ${cls}">${s.toFixed(1)}</span>`,
-      `£${u.help.recommended.toLocaleString()}`,
-    ];
-  });
-
-  if (tableGrid) { tableGrid.updateConfig({ data: rows }).forceRender(); return; }
-  tableGrid = new gridjs.Grid({
-    columns: [
-      { name:'',          width:'64px' },
-      { name:'Name' },
-      { name:'Balance now' },
-      { name:'30d avg' },
-      { name:'2yr avg' },
-      { name:'Days –ve' },
-      { name:'Score', formatter: c => gridjs.html(c) },
-      { name:'Boost est.' },
-    ],
-    data: rows, sort: true,
-    style: { th:{ 'font-family':'inherit' }, td:{ 'font-family':'inherit' } }
-  }).render($('entrantsTable'));
+  const cols = ['', 'Name', 'Balance now', '30d avg', '2yr avg', 'Days –ve', 'Score', 'Boost est.'];
+  const rows = ENTRANTS.map((u, i) => {
+    const s = u.sc.total, cls = s >= 70 ? 'chip-hi' : s >= 45 ? 'chip-med' : 'chip-lo';
+    return `<tr>
+      <td>${i === 0 ? '#1 ★' : '#' + (i + 1)}</td>
+      <td>${u.name}</td>
+      <td>${fmt(u.sc.cur)}</td>
+      <td>${fmt(u.sc.a30)}</td>
+      <td>${fmt(u.sc.a2y)}</td>
+      <td>${u.sc.daysNeg30}d</td>
+      <td><span class="chip ${cls}">${s.toFixed(1)}</span></td>
+      <td>£${u.help.recommended.toLocaleString()}</td>
+    </tr>`;
+  }).join('');
+  $('entrantsTable').innerHTML = `
+    <table class="sos-table">
+      <thead><tr>${cols.map(c => `<th>${c}</th>`).join('')}</tr></thead>
+      <tbody>${rows}</tbody>
+    </table>`;
 }
 
 // ── Interactions ──────────────────────────────────────────────────────────────
