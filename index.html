@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Cleo SOS</title>
+  <title>Cleo Cover Boost</title>
   <!-- No external dependencies — fully self-contained -->
   <style>
     :root {
@@ -170,6 +170,19 @@
       border-radius: 100px; margin: 6px auto 10px;
     }
 
+    /* ── Chart tooltip ── */
+    .chart-tooltip {
+      position: absolute; display: none;
+      background: rgba(247,244,238,0.97);
+      border: 1px solid rgba(160,120,96,0.3);
+      border-radius: 12px; padding: 10px 14px;
+      font-size: 12px; color: var(--brown-dark);
+      box-shadow: 0 4px 20px rgba(59,14,7,0.15);
+      pointer-events: none; max-width: 260px; line-height: 1.5; z-index: 10;
+    }
+    .ct-tag  { font-weight: 600; font-size: 11px; letter-spacing: 0.3px; margin-bottom: 3px; }
+    .ct-text { font-style: italic; color: var(--brown-muted); }
+
     /* ── Dashboard ── */
     main { padding: 28px 28px 60px; max-width: 980px; margin: 0 auto; }
 
@@ -229,7 +242,6 @@
     .wc-score { font-size: 11px; color: var(--brown-faint); margin-top: 4px; }
 
     .sentiment-section { margin-bottom: 28px; }
-    .sentiment-list { display: flex; flex-direction: column; gap: 8px; }
     .sentiment-item { display: flex; gap: 12px; align-items: flex-start; background: rgba(255,255,255,0.45); border: 1px solid rgba(255,255,255,0.7); border-radius: 14px; padding: 12px 16px; }
     .s-date { font-size: 11px; color: var(--brown-muted); white-space: nowrap; padding-top: 2px; min-width: 64px; }
     .s-tag  { font-size: 11px; color: var(--brown-muted); white-space: nowrap; min-width: 100px; }
@@ -426,7 +438,7 @@
     </div>
 
     <div class="hero">
-      <div class="hero-eyebrow" id="heroEyebrow">Most financially distressed quiz entrant this week</div>
+      <div class="hero-eyebrow" id="heroEyebrow">Cover draw entrant with highest qualifying score</div>
       <div class="hero-top">
         <div class="hero-left">
           <div class="hero-name"><strong id="hName">—</strong></div>
@@ -448,16 +460,19 @@
       </div>
 
       <div class="chart-section">
-        <div class="section-title">2-year balance timeline — shaded red when negative · dots = chat distress signals</div>
-        <div class="chart-wrap"><canvas id="heroChart"></canvas></div>
+        <div class="section-title">2-year balance timeline — shaded red when negative · hover dots for chat signals</div>
+        <div class="chart-wrap">
+          <canvas id="heroChart"></canvas>
+          <div class="chart-tooltip" id="chartTooltip"></div>
+        </div>
       </div>
 
       <div class="section-title" style="margin-bottom:14px">Financial health across time windows</div>
       <div class="windows-grid" id="windowsGrid"></div>
 
       <div class="sentiment-section">
-        <div class="section-title">In-app chat signals · last 6 months (illustrative)</div>
-        <div class="sentiment-list" id="sentimentList"></div>
+        <div class="section-title">Most recent in-app chat signal (illustrative)</div>
+        <div id="sentimentList"></div>
       </div>
 
       <div class="help-panel">
@@ -470,7 +485,7 @@
       <div class="cta">
         <button class="btn-main" onclick="openModal()">Send them help</button>
         <button class="btn-outline" onclick="copyUID()" id="copyBtn">Copy user ID</button>
-        <div class="cta-note">Selected from this week's quiz entrants by live open banking distress score.</div>
+        <div class="cta-note">Selected from this week's quiz entrants by Cover draw score.</div>
       </div>
     </div>
 
@@ -484,8 +499,8 @@
 <div class="overlay hidden" id="overlay">
   <div class="modal">
     <div id="modalInner">
-      <div class="m-title">Help <span id="mName">—</span></div>
-      <div class="m-sub">Send a real cash boost to this week's SOS member. Amount calculated from their open banking data.</div>
+      <div class="m-title">Boost <span id="mName">—</span></div>
+      <div class="m-sub">Send a real cash boost to this week's Cover draw winner. Amount calculated from their open banking data.</div>
       <div class="m-detail" id="mDetail"></div>
       <div class="m-demo-note">Demo mode — no real transfer will be made</div>
       <div class="m-actions">
@@ -519,18 +534,18 @@ const LAST  = ['Smith','Johnson','Williams','Brown','Taylor','Davies','Wilson','
                'Adeyemi','Fraser','O\'Brien','Nguyen','Khan','Baptiste','Mensah','Price','Wood','Hall'];
 
 // ── Archetype definitions ─────────────────────────────────────────────────────
-// Each arch models a distinct financial life pattern
+// 5 archetypes, all quizP:1.0 (everyone enters), total 150 users
 const ARCHETYPES = [
-  // 0: Chronically distressed — trapped in cycle, net -£40/month
-  { n:10,  startBal:-55,  startVar:60,  income:1480, rent:900,  weeklyBills:68,  dailySpend:11, trend:-0.05, quizP:0.88 },
-  // 1: Moderately distressed — often negative, flat to declining
-  { n:20,  startBal:25,   startVar:100, income:1720, rent:940,  weeklyBills:85,  dailySpend:14, trend:-0.02, quizP:0.68 },
-  // 2: Occasional struggle — dips into negative, slowly recovering
-  { n:40,  startBal:180,  startVar:180, income:2080, rent:990,  weeklyBills:105, dailySpend:19, trend:0.04,  quizP:0.28 },
-  // 3: Mostly healthy — rarely negative
-  { n:50,  startBal:520,  startVar:280, income:2580, rent:1120, weeklyBills:135, dailySpend:27, trend:0.18,  quizP:0.07 },
-  // 4: Comfortable — consistently positive, growing
-  { n:30,  startBal:1050, startVar:380, income:3150, rent:1300, weeklyBills:170, dailySpend:36, trend:0.45,  quizP:0.02 },
+  // 0: Deep distress — chronically negative, trapped in a spiral (n=15, scores ~75–100)
+  { n:15, startBal:-320, startVar:60,  income:1380, rent:940,  weeklyBills:95,  dailySpend:20, trend:-0.10, quizP:1.0 },
+  // 1: Chronic struggle — consistently negative with declining trend (n=25, scores ~50–78)
+  { n:25, startBal:-30,  startVar:80,  income:1660, rent:950,  weeklyBills:82,  dailySpend:15, trend:-0.05, quizP:1.0 },
+  // 2: Moderate struggle — dips negative most months, slow recovery (n=35, scores ~25–55)
+  { n:35, startBal:120,  startVar:160, income:2000, rent:980,  weeklyBills:100, dailySpend:18, trend:0.02,  quizP:1.0 },
+  // 3: Mostly healthy — rarely negative, positive trend (n=45, scores ~5–25)
+  { n:45, startBal:500,  startVar:260, income:2500, rent:1100, weeklyBills:130, dailySpend:25, trend:0.15,  quizP:1.0 },
+  // 4: Comfortable — consistently positive, growing (n=30, scores ~0–8)
+  { n:30, startBal:980,  startVar:360, income:3100, rent:1280, weeklyBills:162, dailySpend:33, trend:0.38,  quizP:1.0 },
 ];
 
 // ── Generate 730 days of balance history ─────────────────────────────────────
@@ -550,16 +565,17 @@ function genHistory(arch, r) {
     // Weekly bills
     if (d % 7 === 0) b -= arch.weeklyBills * (0.65 + r() * 0.70);
     // Daily spend — sum of two U(0,1) gives a roughly normal shape
-    const spendMult = Math.max(0.25, Math.min(1.0, 1 + b / 600)); // soft floor when deeply negative
+    // Soft floor reduces spending when very deep in the red, but stays realistic
+    const spendMult = Math.max(0.3, Math.min(1.0, 1 + b / 800));
     b -= arch.dailySpend * (r() + r()) * spendMult;
     // Long-run trend
     b += arch.trend;
-    // Rare windfall (overtime, tax, gift)
+    // Rare windfall (overtime, tax refund, gift)
     if (r() < 0.0025) b += 150 + r() * 320;
     // Rare shock (car, medical, appliance)
     if (r() < 0.003)  b -= 120 + r() * 280;
     // Overdraft fee proxy (small daily drag when negative)
-    if (b < -150)     b -= 0.4;
+    if (b < -150)     b -= 0.5;
     bals[d] = Math.round(b * 100) / 100;
   }
   return bals;
@@ -602,16 +618,17 @@ function score(bals) {
 // ── Calculate help amount ─────────────────────────────────────────────────────
 function helpAmount(bals, sc) {
   const n = bals.length;
-  // Estimate daily expenditure from 90-day negative deltas
+  // Estimate daily expenditure from 90-day negative deltas (excludes large shocks > £200)
   let spend = 0, days = 0;
   for (let i = n-89; i < n; i++) {
     const d = bals[i] - bals[i-1];
-    if (d < 0 && Math.abs(d) < 180) { spend += Math.abs(d); days++; }
+    if (d < 0 && Math.abs(d) < 200) { spend += Math.abs(d); days++; }
   }
   const dailySpend = days > 0 ? spend / days : 38;
   const monthly    = Math.round(dailySpend * 30);
   const toZero     = sc.cur < 0 ? Math.abs(Math.round(sc.cur)) : 0;
-  const buffer     = Math.round(monthly * 0.5);
+  // 3/4-month buffer gives real breathing room, not just a scrape to zero
+  const buffer     = Math.round(monthly * 0.75);
   return { toZero, buffer, recommended: toZero + buffer, monthly };
 }
 
@@ -636,12 +653,12 @@ function buildUsers() {
       });
     }
   }
-  // Guarantee worst user entered the quiz
+  // Guarantee worst-scoring user entered the quiz
   [...users].sort((a,b)=>b.sc.total-a.sc.total)[0].quizEntrant = true;
   return users;
 }
 
-// ── Chat sentiment (illustrative, for hero display) ───────────────────────────
+// ── Chat sentiment signals (illustrative, for hero display) ──────────────────
 const SENTIMENTS = [
   { daysAgo:183, tag:'📉 Overdraft',   text:'I keep going into my overdraft every single month — feels like I never get ahead no matter what I do' },
   { daysAgo:154, tag:'🆘 Advance req', text:"Can I get a cash advance? Rent's due in 4 days and I'm still short" },
@@ -657,18 +674,20 @@ const SENTIMENTS = [
 const fmt  = (v) => (v < 0 ? '-£' : '£') + Math.abs(Math.round(v)).toLocaleString();
 const $    = (id) => document.getElementById(id);
 const hide = (id) => $(id).style.display = 'none';
+// Anonymise: "Hannah Wood" → "H Wood"
+const anon = (name) => { const p = name.split(' '); return p[0][0] + ' ' + p.slice(1).join(' '); };
 
-// Previous weeks help amounts (for running total)
+// Previous weeks' boost amounts (for running total)
 const PREV_BOOSTS = [183,95,340,220,158,412,275,190,325,244,178,292,215,387,148,268,302,196,234,418,164,278,315];
 
-let USERS, HERO, ENTRANTS, heroChart = null, tableGrid = null;
+let USERS, HERO, ENTRANTS, sentDotPositions = [];
 
 // ── Boot ──────────────────────────────────────────────────────────────────────
 window.addEventListener('DOMContentLoaded', () => {
   USERS    = buildUsers();
   ENTRANTS = USERS.filter(u=>u.quizEntrant).sort((a,b)=>b.sc.total-a.sc.total);
   HERO     = ENTRANTS[0];
-  $('quizEntryCount').textContent = `${ENTRANTS.length + 118} entered this week`;
+  $('quizEntryCount').textContent = `${ENTRANTS.length} entered this week`;
   $('quizWeekLabel').textContent  = 'Week 24 of 2026';
 });
 
@@ -690,7 +709,7 @@ function submitQuiz() {
     <div class="quiz-confirmed">
       <div class="quiz-conf-icon">🙌</div>
       <div class="quiz-conf-t">You're in the draw</div>
-      <div class="quiz-conf-d">We'll pick whoever needs it most from this week's ${ENTRANTS.length+118} entrants. You'll hear back by Thursday.</div>
+      <div class="quiz-conf-d">We'll pick whoever needs it most from this week's ${ENTRANTS.length} entrants. You'll hear back by Thursday.</div>
       <button class="app-cta" style="margin-top:0" onclick="showDash()">See internal dashboard</button>
     </div>`;
 }
@@ -716,13 +735,13 @@ function renderDash() {
   if (dashReady) return; dashReady = true;
 
   const totalSent = PREV_BOOSTS.reduce((a,b)=>a+b,0);
-  $('weeksRunning').textContent    = '24';
-  $('peopleHelped').textContent    = '23';
-  $('totalSent').textContent       = `£${totalSent.toLocaleString()}`;
-  $('entrantsCountStat').textContent = ENTRANTS.length + 118;
-  $('weekLbl').textContent         = `Week 24 · ${new Date().toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'})}`;
-  $('ctxNote').textContent         = `${ENTRANTS.length} of ${USERS.length} users entered · sorted by distress score`;
-  $('heroEyebrow').textContent     = `Most financially distressed member from ${ENTRANTS.length} quiz entrants this week`;
+  $('weeksRunning').textContent      = '24';
+  $('peopleHelped').textContent      = '23';
+  $('totalSent').textContent         = `£${totalSent.toLocaleString()}`;
+  $('entrantsCountStat').textContent = ENTRANTS.length;
+  $('weekLbl').textContent           = `Week 24 · ${new Date().toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'})}`;
+  $('ctxNote').textContent           = `${ENTRANTS.length} of ${USERS.length} users entered · sorted by Cover draw score`;
+  $('heroEyebrow').textContent       = `Cover draw entrant with highest qualifying score · ${ENTRANTS.length} entered this week`;
 
   renderHero();
   renderTable();
@@ -731,11 +750,11 @@ function renderDash() {
 function renderHero() {
   const { sc, help, name, id } = HERO;
 
-  $('hName').textContent = name;
-  $('mName').textContent = name.split(' ')[0];
+  $('hName').textContent = anon(name);
+  $('mName').textContent = anon(name);
   $('hUID').textContent  = id;
 
-  // Caption
+  // Caption — anonymised financial snapshot
   const parts = [];
   if (sc.cur  < 0) parts.push(`currently ${fmt(sc.cur)}`);
   if (sc.a30  < 0) parts.push(`30d avg ${fmt(sc.a30)}`);
@@ -772,43 +791,43 @@ function renderHero() {
   // Chart
   renderChart();
 
-  // Sentiment
-  const today = new Date();
-  $('sentimentList').innerHTML = SENTIMENTS.map(s => {
-    const d = new Date(today); d.setDate(d.getDate() - s.daysAgo);
-    return `<div class="sentiment-item">
-      <div class="s-date">${d.toLocaleDateString('en-GB',{day:'numeric',month:'short'})}</div>
-      <div class="s-tag">${s.tag}</div>
-      <div class="s-text">"${s.text}"</div>
+  // Most recent sentiment signal only (full history accessible via chart dot hover)
+  const recent = SENTIMENTS[SENTIMENTS.length - 1];
+  const today  = new Date();
+  const rd = new Date(today); rd.setDate(rd.getDate() - recent.daysAgo);
+  $('sentimentList').innerHTML = `
+    <div class="sentiment-item">
+      <div class="s-date">${rd.toLocaleDateString('en-GB',{day:'numeric',month:'short'})}</div>
+      <div class="s-tag">${recent.tag}</div>
+      <div class="s-text">"${recent.text}"</div>
     </div>`;
-  }).join('');
 
-  // Help panel
-  const fn = name.split(' ')[0];
-  $('hpSub').textContent = `${fn} needs £${help.toZero} to clear the negative, plus £${help.buffer} as a half-month buffer. Based on their spending pattern from open banking data.`;
+  // Help panel — no first name, just the numbers
+  $('hpSub').textContent = `£${help.toZero.toLocaleString()} to clear the negative, plus £${help.buffer.toLocaleString()} as a ¾-month spending buffer. Calculated from open banking data.`;
   $('hpBreakdown').innerHTML = `
     <div class="hp-item">
       <div class="hp-item-label">Clear negative</div>
       <div class="hp-item-val">£${help.toZero.toLocaleString()}</div>
     </div>
     <div class="hp-item">
-      <div class="hp-item-label">½ month buffer</div>
+      <div class="hp-item-label">¾ month buffer</div>
       <div class="hp-item-val">£${help.buffer.toLocaleString()}</div>
     </div>
     <div class="hp-item">
       <div class="hp-item-label">Recommended</div>
       <div class="hp-item-val highlight">£${help.recommended.toLocaleString()}</div>
     </div>`;
-  $('hpNote').textContent = `Estimated £${help.monthly}/month expenditure · half kept as buffer so ${fn} has breathing room beyond zero.`;
+  $('hpNote').textContent = `Estimated £${help.monthly.toLocaleString()}/month spend detected from open banking · buffer gives real breathing room beyond zero.`;
 
-  // Modal detail
+  // Modal detail — matches help panel wording, no Cover draw score line
   $('mDetail').innerHTML = `
-    <strong>Distress score:</strong> ${sc.total.toFixed(1)} / 100<br>
     <strong>Current balance:</strong> ${fmt(sc.cur)}<br>
     <strong>30-day avg balance:</strong> ${fmt(sc.a30)}<br>
     <strong>2-year avg balance:</strong> ${fmt(sc.a2y)}<br>
     <strong>Days negative (30d):</strong> ${sc.daysNeg30} of 30<br>
-    <strong>All windows worsening:</strong> ${sc.sDet >= 15 ? 'Yes' : sc.sDet > 0 ? 'Partially' : 'No'}<br>
+    <strong>All windows worsening:</strong> ${sc.sDet >= 15 ? 'Yes ↓' : sc.sDet > 0 ? 'Partially' : 'No'}<br>
+    <strong>To clear balance:</strong> £${help.toZero.toLocaleString()}<br>
+    <strong>Spending buffer (¾ month):</strong> £${help.buffer.toLocaleString()}<br>
     <strong>Recommended boost:</strong> £${help.recommended.toLocaleString()}`;
 }
 
@@ -879,10 +898,12 @@ function renderChart() {
   bals.forEach((v, i) => { i === 0 ? ctx.moveTo(xp(i), yp(v)) : ctx.lineTo(xp(i), yp(v)); });
   ctx.stroke();
 
-  // Sentiment dots
+  // Sentiment dots — store positions for hover interaction
+  sentDotPositions = [];
   SENTIMENTS.forEach(s => {
     const idx = Math.max(0, Math.min(729, 729 - s.daysAgo));
     const x = xp(idx), y = yp(bals[idx]);
+    sentDotPositions.push({ x, y, s });
     ctx.fillStyle = '#C0392B';
     ctx.beginPath(); ctx.arc(x, y, 4.5, 0, Math.PI * 2); ctx.fill();
     ctx.strokeStyle = '#fff'; ctx.lineWidth = 1.5;
@@ -891,7 +912,7 @@ function renderChart() {
 
   // X axis date labels (every ~122 days ≈ 6 labels)
   ctx.fillStyle = '#A07860';
-  ctx.font = `${10 * dpr / dpr}px -apple-system, BlinkMacSystemFont, sans-serif`;
+  ctx.font = `10px -apple-system, BlinkMacSystemFont, sans-serif`;
   ctx.textAlign = 'center';
   for (let i = 0; i < bals.length; i += 122) {
     const d = new Date(today); d.setDate(d.getDate() - (729 - i));
@@ -903,16 +924,52 @@ function renderChart() {
   [minV, 0, maxV].forEach(v => {
     ctx.fillText(fmt(v), pad.left - 6, yp(v) + 4);
   });
+
+  // ── Tooltip hover ──────────────────────────────────────────────────────────
+  const tip = $('chartTooltip');
+  if (!canvas._tooltipBound) {
+    canvas._tooltipBound = true;
+    canvas.addEventListener('mousemove', (e) => {
+      const rect = canvas.getBoundingClientRect();
+      // Mouse position in logical (CSS-px) coordinates matching xp/yp
+      const mx = e.clientX - rect.left;
+      const my = e.clientY - rect.top;
+      let hit = null;
+      for (const dp of sentDotPositions) {
+        if (Math.hypot(mx - dp.x, my - dp.y) < 11) { hit = dp; break; }
+      }
+      if (hit) {
+        tip.innerHTML = `<div class="ct-tag">${hit.s.tag}</div><div class="ct-text">"${hit.s.text}"</div>`;
+        tip.style.display = 'block';
+        const wrap = canvas.parentElement.getBoundingClientRect();
+        let tx = e.clientX - wrap.left + 14;
+        let ty = e.clientY - wrap.top  - 54;
+        // Flip left if tooltip would overflow right edge
+        if (tx + 270 > wrap.width) tx = (e.clientX - wrap.left) - 278;
+        if (ty < 4) ty = 4;
+        tip.style.left = tx + 'px';
+        tip.style.top  = ty + 'px';
+        canvas.style.cursor = 'pointer';
+      } else {
+        tip.style.display = 'none';
+        canvas.style.cursor = 'default';
+      }
+    });
+    canvas.addEventListener('mouseleave', () => {
+      tip.style.display = 'none';
+      canvas.style.cursor = 'default';
+    });
+  }
 }
 
 function renderTable() {
   $('tblCount').textContent = ENTRANTS.length;
-  const cols = ['', 'Name', 'Balance now', '30d avg', '2yr avg', 'Days –ve', 'Score', 'Boost est.'];
+  const cols = ['', 'Member', 'Balance now', '30d avg', '2yr avg', 'Days –ve', 'Cover draw score', 'Boost est.'];
   const rows = ENTRANTS.map((u, i) => {
     const s = u.sc.total, cls = s >= 70 ? 'chip-hi' : s >= 45 ? 'chip-med' : 'chip-lo';
     return `<tr>
       <td>${i === 0 ? '#1 ★' : '#' + (i + 1)}</td>
-      <td>${u.name}</td>
+      <td>${anon(u.name)}</td>
       <td>${fmt(u.sc.cur)}</td>
       <td>${fmt(u.sc.a30)}</td>
       <td>${fmt(u.sc.a2y)}</td>
@@ -945,8 +1002,8 @@ function sendHelp() {
       <div class="sent-icon">🌱</div>
       <div class="sent-t">Boost recorded</div>
       <div class="sent-d">
-        ${HERO.name} receives <strong>£${HERO.help.recommended.toLocaleString()}</strong>.<br>
-        £${HERO.help.toZero} clears the negative · £${HERO.help.buffer} gives them breathing room.<br><br>
+        ${anon(HERO.name)} receives <strong>£${HERO.help.recommended.toLocaleString()}</strong>.<br>
+        £${HERO.help.toZero.toLocaleString()} clears the negative · £${HERO.help.buffer.toLocaleString()} gives them breathing room.<br><br>
         <span style="font-size:11px;opacity:0.5">Demo mode — no real transfer has been made.</span>
       </div>
       <button class="m-confirm" onclick="closeModal()">Done</button>
